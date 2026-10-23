@@ -1,0 +1,43 @@
+name: API tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore
+        run: dotnet restore
+      - name: Formatting
+        run: dotnet format --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Offline framework tests
+        run: >-
+          dotnet test --no-build --configuration Release
+          --filter TestCategory=unit --results-directory reports/unit
+      - name: Full API suite
+        run: >-
+          dotnet test --no-build --configuration Release
+          --filter TestCategory=full --results-directory reports/api
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: reports/
+          retention-days: 14

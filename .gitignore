@@ -1,0 +1,11 @@
+bin/
+obj/
+reports/
+TestResults/
+.vs/
+.idea/
+.vscode/
+*.user
+.env
+Thumbs.db
+.DS_Store
